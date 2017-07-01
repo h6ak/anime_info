@@ -23,7 +23,7 @@ def main():
 
     ds = DBWriter(db_conf)
     for info in info_list:
-        ds.insert_info_to_db(info)
+        ds.write_info_to_db(info)
     ds.close_db()
 
 
