@@ -19,12 +19,12 @@ CREATE TABLE `animations` (
     UNIQUE KEY (`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='アニメ';
 
-DROP TABLE IF EXISTS `first_onair_infomations`;
-CREATE TABLE `first_onair_infomations` (
+DROP TABLE IF EXISTS `first_onair_informations`;
+CREATE TABLE `first_onair_informations` (
     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     `animation_id` bigint(20) unsigned NOT NULL,
     `station_id` int(10) unsigned NOT NULL,
-    `start_at` date DEFAULT NULL,
+    `start_at` datetime DEFAULT NULL,
     `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),

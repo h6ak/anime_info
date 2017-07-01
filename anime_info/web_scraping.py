@@ -104,18 +104,17 @@ class AkibaSoukenInfo(object):
         datetime_elms = reg_ex.findall(date_str)
         datetime_elms = [int(elm) for elm in datetime_elms]
 
-        # TODO; 情報が不足しているものをどうするか
-        if len(datetime_elms) < 5:
+        if len(datetime_elms) < 3:
             return None
 
         year = datetime_elms[0]
         month = datetime_elms[1]
         day = datetime_elms[2]
-        hour = datetime_elms[3]
-        minute = datetime_elms[4]
-
         parsed_datetime = dt.datetime(year=year, month=month, day=day)
-        if hour and minute:
+
+        if len(datetime_elms) >= 5:
+            hour = datetime_elms[3]
+            minute = datetime_elms[4]
             parsed_datetime += dt.timedelta(hours=hour, minutes=minute)
 
         return parsed_datetime
