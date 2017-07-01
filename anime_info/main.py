@@ -1,6 +1,6 @@
 import argparse
 from .web_scraping import AkibaSoukenInfo
-from .data_storage import DataStorage
+from .database import DBWriter
 
 
 def main():
@@ -14,10 +14,17 @@ def main():
     print(anime_info.status)
     info_list = anime_info.get()
 
-    ds = DataStorage()
+    # TODO: DB接続情報を外部ファイルから読み込むようにする
+    db_conf = {
+        'host': 'localhost',
+        'user': 'root',
+        'database': 'anime_info'
+    }
 
+    ds = DBWriter(db_conf)
     for info in info_list:
         ds.insert_info_to_db(info)
+    ds.close_db()
 
 
 if __name__ == '__main__':

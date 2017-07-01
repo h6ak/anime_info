@@ -2,9 +2,8 @@ import datetime as dt
 import mysql.connector as sql
 
 
-class DataStorage(object):
-    def __init__(self):
-        db_conf = {'host': 'localhost', 'user': 'root', 'database': 'anime_info'}
+class DBWriter(object):
+    def __init__(self, db_conf):
         self._conn = sql.connect(**db_conf)
 
     def close_db(self):
