@@ -1,3 +1,5 @@
+import re
+import datetime as dt
 import requests
 from bs4 import BeautifulSoup
 
@@ -18,6 +20,11 @@ class AkibaSoukenInfo(object):
         self._item_boxes = soup.findAll('div', {'class': 'itemBox'})
 
     def get(self):
+        """
+        Get animation information
+        :return: A list of dictionaries.
+            Each dictionary has information of one animation.
+        """
         result = []
         for ib in self._item_boxes:
             info = {}
@@ -47,7 +54,7 @@ class AkibaSoukenInfo(object):
     def _title(item_box: BeautifulSoup) -> [str, None]:
         m_title = item_box.find('div', {'class': 'mTitle'})
         if m_title and m_title.a:
-            return m_title.a.string
+            return str(m_title.a.string)
         return None
 
     @staticmethod
@@ -60,8 +67,7 @@ class AkibaSoukenInfo(object):
 
         return None
 
-    @staticmethod
-    def _schedule(item_box: BeautifulSoup) -> [None]:
+    def _schedule(self, item_box: BeautifulSoup) -> [None]:
         result = []
         schedule = item_box.find('div', {'class': 'schedule'})
         if schedule:
@@ -75,9 +81,41 @@ class AkibaSoukenInfo(object):
                 if station is None and onair is None:
                     continue
 
-                info['station'] = station.string if station else None
-                info['onair'] = onair.string if onair else None
+                info['station'] = str(station.string) if station else None
+
+                if onair and onair.string:
+                    onair_date_str = str(onair.string)
+                    info['onair'] = self.parse_datetime(onair_date_str)
+                else:
+                    info['onair'] = None
 
                 result.append(info)
 
         return result
+
+    @staticmethod
+    def parse_datetime(date_str: str) -> [dt.datetime, None]:
+        """
+        Parse string like '2017年7月3日(月)25:35～' to datetime
+        :param date_str: string
+        :return: datetime
+        """
+        reg_ex = re.compile(r'[0-9]+')
+        datetime_elms = reg_ex.findall(date_str)
+        datetime_elms = [int(elm) for elm in datetime_elms]
+
+        # TODO; 情報が不足しているものをどうするか
+        if len(datetime_elms) < 5:
+            return None
+
+        year = datetime_elms[0]
+        month = datetime_elms[1]
+        day = datetime_elms[2]
+        hour = datetime_elms[3]
+        minute = datetime_elms[4]
+
+        parsed_datetime = dt.datetime(year=year, month=month, day=day)
+        if hour and minute:
+            parsed_datetime += dt.timedelta(hours=hour, minutes=minute)
+
+        return parsed_datetime
