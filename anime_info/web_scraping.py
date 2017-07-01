@@ -7,13 +7,15 @@ from bs4 import BeautifulSoup
 class AkibaSoukenInfo(object):
     target_url = None
     html_text = None
+    status = None
     _item_boxes = None
 
     def __init__(self, file_name=None):
         if file_name:
             self._set_html_text_from_file(file_name)
         else:
-            self._set_target_url()
+            now = dt.datetime.now()
+            self._set_target_url(now)
             self._set_html_text_from_web()
 
         soup = BeautifulSoup(self.html_text, 'lxml')
@@ -37,13 +39,21 @@ class AkibaSoukenInfo(object):
 
         return result
 
-    def _set_target_url(self) -> None:
-        # TODO: 時期によってtarget_urlを変更したい
-        self.target_url = 'https://akiba-souken.com/anime/summer/'
+    def _set_target_url(self, now: dt.datetime) -> None:
+        base_url = 'https://akiba-souken.com/anime/'
+
+        if now.month in [3, 4, 5]:
+            self.target_url = base_url + 'spring/'
+        elif now.month in [6, 7, 8]:
+            self.target_url = base_url + 'summer/'
+        elif now.month in [9, 10, 11]:
+            self.target_url = base_url + 'autumn/'
+        else:
+            self.target_url = base_url + 'winter/'
 
     def _set_html_text_from_web(self) -> None:
         response = requests.get(self.target_url)
-        print('STATUS: {0}'.format(response.status_code))
+        self.status = response.status_code
         self.html_text = response.text
 
     def _set_html_text_from_file(self, file_name: str) -> None:
@@ -85,7 +95,7 @@ class AkibaSoukenInfo(object):
 
                 if onair and onair.string:
                     onair_date_str = str(onair.string)
-                    info['onair'] = self.parse_datetime(onair_date_str)
+                    info['onair'] = self._parse_datetime(onair_date_str)
                 else:
                     info['onair'] = None
 
@@ -94,7 +104,7 @@ class AkibaSoukenInfo(object):
         return result
 
     @staticmethod
-    def parse_datetime(date_str: str) -> [dt.datetime, None]:
+    def _parse_datetime(date_str: str) -> [dt.datetime, None]:
         """
         Parse string like '2017年7月3日(月)25:35～' to datetime
         :param date_str: string

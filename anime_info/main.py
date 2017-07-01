@@ -10,6 +10,8 @@ def main():
 
     file_name = args.f
     anime_info = AkibaSoukenInfo(file_name=file_name)
+    print(anime_info.target_url)
+    print(anime_info.status)
     info_list = anime_info.get()
 
     ds = DataStorage()
